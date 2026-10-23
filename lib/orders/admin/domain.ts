@@ -52,7 +52,7 @@ function record(value: unknown): Record<string, unknown> {
 }
 
 function timestamp(value: unknown): string {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z$/u.test(value) || Number.isNaN(Date.parse(value))) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/u.test(value) || Number.isNaN(Date.parse(value))) {
     throw new OrderAdminError("invalid_request", "La versión del pedido no es válida.");
   }
   return value;
