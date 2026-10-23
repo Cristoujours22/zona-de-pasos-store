@@ -33,6 +33,12 @@ export interface ProductVariant {
   stockQuantity: number;
 }
 
+export interface AdminProductSummary extends Product {
+  brand: Brand;
+  image: ProductImage | null;
+  variants: ProductVariant[];
+}
+
 export interface ProductImage {
   id: string;
   productId: string;

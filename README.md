@@ -50,7 +50,11 @@ Migration `supabase/migrations/202604020002_catalog_inventory.sql` covers the bo
 
 The secured image infrastructure now provides authenticated Node.js upload and deletion routes at `/api/admin/product-images`. Uploads accept JPEG, PNG, WebP, and AVIF files up to 5 MiB, normalize alt text, and remain confined to the `zona-de-pasos/products` prefix. The Cloudinary API secret is read only by `server-only` modules; the browser never receives Cloudinary credentials or uses an unsigned preset. This slice intentionally does not perform magic-byte validation; Cloudinary's decoder behavior remains an external proof gap. Product persistence, catalog admin UI, and the rest of the T3 workflow remain deferred.
 
-After applying the T2 migration, apply this migration with the Supabase CLI or SQL editor.
+After applying the T2 migration, apply this migration with the Supabase CLI or SQL editor. The additive workflow migration `supabase/migrations/202604020003_catalog_admin_workflows.sql` adds the authenticated atomic product-creation RPC; it does not rewrite migrations 001/002.
+
+The server-only admin workflow routes are `/api/admin/brands`, `/api/admin/products`, `/api/admin/products/:id`, `/api/admin/settings`, and `/api/admin/inventory`. They require an active administrator before parsing input, keep Nequi details out of public projections, and use injectable catalog adapters for tests. Product creation retains a previously uploaded Cloudinary asset when persistence is ambiguous so an operator can retry or remove it manually.
+
+This bounded slice covers T3 S2-S3 and S9-S10. Admin catalog/settings pages and forms remain deferred.
 
 After adding the Supabase dependencies, run:
 
