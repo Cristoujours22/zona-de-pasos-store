@@ -32,7 +32,7 @@ The first public shell establishes:
 - The confirmed store name, Colombia-only market, adult men and women audience, and Colombian-peso language.
 - Accessible design tokens, focus states, skip navigation, semantic landmarks, and responsive mobile-first layout primitives.
 - A campaign-led placeholder homepage with practical discovery sections, sizing/shipping/payment expectations, and a visible WhatsApp support route.
-- A deliberately data-free collection state so catalog, inventory, authentication, cart, checkout, Supabase, and Cloudinary work can be added in later tasks.
+- A campaign-led shell that remains independent from live credentials; public catalog rendering is added in T4 without replacing this page yet.
 
 The typographic `ZP` mark is a temporary shell treatment. Final logo design, returns policy, customer accounts, automated Nequi verification, and carrier API integrations are deferred by the product scope.
 
@@ -55,6 +55,14 @@ After applying the T2 migration, apply this migration with the Supabase CLI or S
 The server-only admin workflow routes are `/api/admin/brands`, `/api/admin/products`, `/api/admin/products/:id`, `/api/admin/settings`, and `/api/admin/inventory`. They require an active administrator before parsing input, keep Nequi details out of public projections, and use injectable catalog adapters for tests. Product creation retains a previously uploaded Cloudinary asset when persistence is ambiguous so an operator can retry or remove it manually.
 
 This bounded slice covers T3 S2-S3 and S9-S10. Admin catalog/settings pages and forms remain deferred.
+
+## T4 public catalog foundation
+
+The first bounded T4 slice adds a server-only anonymous Supabase reader in `lib/supabase/public.ts` and a safe public catalog adapter in `lib/storefront/catalog.ts`. It queries published products, `storefront_product_variants`, and the narrow `storefront_settings` projection, then merges rows without returning stock quantities, Nequi details, dispatch addresses, drafts, or admin lifecycle data. Missing environment, database errors, empty catalogs, malformed rows, and partial variant/image data have explicit result states or warnings.
+
+Pure catalog filters and stable sorting live in `lib/storefront/filters.ts`. WhatsApp phone normalization and Spanish support links live in `lib/storefront/support.ts`; reusable Spanish product, price, stock, and audience primitives live in `components/storefront/`. Cloudinary images are accepted only over HTTPS from Cloudinary delivery hosts and configured in `next.config.ts`. Public page routing, cart behavior, and homepage replacement remain deferred to later T4 slices.
+
+This bounded slice covers T4 S1-S2, S9-S10 public stock behavior, S13, and S15.
 
 After adding the Supabase dependencies, run:
 
