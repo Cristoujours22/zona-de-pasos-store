@@ -44,6 +44,7 @@ describe("public storefront homepage", () => {
     render(await HomePage());
 
     expect(screen.getByRole("banner")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /carrito.*0/i })).toHaveAttribute("href", "/cart");
     expect(screen.getAllByText(/Zona de pasos store/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/solo para Colombia/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("heading", { name: /tu próximo paso empieza aquí/i })).toBeInTheDocument();

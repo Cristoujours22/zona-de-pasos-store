@@ -64,6 +64,14 @@ Pure catalog filters and stable sorting live in `lib/storefront/filters.ts`. Wha
 
 This bounded slice covers T4 S1-S2, S9-S10 public stock behavior, S13, and S15.
 
+## T5 cart slice
+
+The root layout now mounts a client-only `CartProvider` for a versioned, guest-only localStorage cart. Stored items contain authoritative product/variant IDs and quantity plus non-sensitive display snapshots; display prices are informational only, and buyer/payment data and exact stock never enter persistence. Malformed or unknown-version data is discarded, storage failures are tolerated, and browser `storage` events synchronize tabs.
+
+Product detail now selects one available variant, keeps quantities between 1 and 99, merges the same variant, and disables unavailable variants using the public availability flag without inferring stock. The public header exposes a cart count and `/cart` reviews display snapshots, an informational COP subtotal, quantity/removal controls, a backend-authority warning, and a link to the future `/checkout` route.
+
+Checkout forms, delivery submission, order creation from the cart, WhatsApp payload generation, and Nequi verification remain deferred.
+
 ## T5 guest-order foundation
 
 Migration `supabase/migrations/202604020004_guest_orders.sql` adds private order and item snapshots, RLS, and the service-role-only creation function `create_guest_order_atomic`, reached publicly only through `/api/orders`. The RPC starts orders in pending confirmation, accepts a high-entropy UUID idempotency key, snapshots published product data, validates active stock without reserving or deducting inventory, and classifies local delivery by normalized city equality with the configured dispatch origin. Shipping cost, payment confirmation, proof, and administrative overrides remain later workflow concerns.

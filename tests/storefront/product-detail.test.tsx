@@ -62,13 +62,15 @@ describe("public product detail", () => {
     expect(screen.getByText("Marca Uno")).toBeInTheDocument();
     expect(screen.getByText(/mujer/i)).toBeInTheDocument();
     expect(screen.getByText(/249\.900/)).toBeInTheDocument();
-    expect(screen.getByText(/talla 38/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /talla 38.*blanco/i })).toBeInTheDocument();
     expect(screen.getByText(/color: blanco/i)).toBeInTheDocument();
     expect(screen.getByText(/SKU: R1-38/i)).toBeInTheDocument();
     expect(screen.getByText("Pocas unidades")).toBeInTheDocument();
-    expect(screen.getByText("No disponible")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /talla 39.*negro/i })).toBeDisabled();
+    expect(screen.getByRole("spinbutton", { name: /cantidad/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /agregar al carrito/i })).toBeEnabled();
+    expect(screen.getByRole("link", { name: /ver carrito/i })).toHaveAttribute("href", "/cart");
     expect(screen.queryByText(/\b\d+\s+unidades|stock_quantity/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /carrito.*próximo paso/i })).toBeDisabled();
     expect(screen.getByText(/verificación humana/i)).toBeInTheDocument();
     expect(screen.getByText(/Bogotá/i)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /whatsapp/i })[0]).toHaveAttribute("href", expect.stringContaining("wa.me/573001234567"));
