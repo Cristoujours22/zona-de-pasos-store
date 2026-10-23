@@ -31,8 +31,8 @@ The first public shell establishes:
 
 - The confirmed store name, Colombia-only market, adult men and women audience, and Colombian-peso language.
 - Accessible design tokens, focus states, skip navigation, semantic landmarks, and responsive mobile-first layout primitives.
-- A campaign-led placeholder homepage with practical discovery sections, sizing/shipping/payment expectations, and a visible WhatsApp support route.
-- A campaign-led shell that remains independent from live credentials; public catalog rendering is added in T4 without replacing this page yet.
+- A campaign-led public homepage with practical discovery sections, live published-product highlights, sizing/shipping/payment expectations, and a configurable WhatsApp support route.
+- A responsive public catalog with GET filters for audience, brand, size, color, COP price boundaries, and sorting.
 
 The typographic `ZP` mark is a temporary shell treatment. Final logo design, returns policy, customer accounts, automated Nequi verification, and carrier API integrations are deferred by the product scope.
 
@@ -60,7 +60,7 @@ This bounded slice covers T3 S2-S3 and S9-S10. Admin catalog/settings pages and 
 
 The first bounded T4 slice adds a server-only anonymous Supabase reader in `lib/supabase/public.ts` and a safe public catalog adapter in `lib/storefront/catalog.ts`. It queries published products, `storefront_product_variants`, and the narrow `storefront_settings` projection, then merges rows without returning stock quantities, Nequi details, dispatch addresses, drafts, or admin lifecycle data. Missing environment, database errors, empty catalogs, malformed rows, and partial variant/image data have explicit result states or warnings.
 
-Pure catalog filters and stable sorting live in `lib/storefront/filters.ts`. WhatsApp phone normalization and Spanish support links live in `lib/storefront/support.ts`; reusable Spanish product, price, stock, and audience primitives live in `components/storefront/`. Cloudinary images are accepted only over HTTPS from Cloudinary delivery hosts and configured in `next.config.ts`. Public page routing, cart behavior, and homepage replacement remain deferred to later T4 slices.
+Pure catalog filters and stable sorting live in `lib/storefront/filters.ts`. WhatsApp phone normalization and Spanish support links live in `lib/storefront/support.ts`; reusable Spanish product, price, stock, and audience primitives live in `components/storefront/`. Cloudinary images are accepted only over HTTPS from Cloudinary delivery hosts and configured in `next.config.ts`. The public routes are `/`, `/catalog`, and `/products/:slug`; they use dynamic rendering and async Next.js 16 route props so builds do not require live Supabase credentials. Drafts and internal inventory/payment fields remain outside the public projection. Cart selection, checkout, order creation, and payment behavior remain deferred to T5.
 
 This bounded slice covers T4 S1-S2, S9-S10 public stock behavior, S13, and S15.
 
@@ -77,9 +77,9 @@ npm run build
 ## Project structure
 
 ```text
-app/          App Router pages, protected admin/auth routes, and global styles
+app/          App Router pages, public catalog/product routes, protected admin/auth routes, and global styles
 components/   Reusable public-shell and admin components
-lib/          Store constants, auth policy/services, and Supabase server clients
+lib/          Store constants, auth policy/services, storefront query/data helpers, and Supabase server clients
 supabase/     RLS migration for administrator onboarding and audit events
 tests/        Observable shell, auth-domain, and security invariant tests
 ```
