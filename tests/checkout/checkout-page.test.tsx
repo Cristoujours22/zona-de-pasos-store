@@ -22,9 +22,11 @@ const item: CartItem = {
   quantity: 2,
 };
 
+const trackingPath = "/track/11111111-1111-4111-8111-111111111111.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const successBody = {
   order: { number: "ZP-20260403-ABC", subtotalCop: 499800, deliveryType: "local" },
   whatsapp: { url: "https://wa.me/573001234567?text=itemizado" },
+  tracking: { path: trackingPath },
 };
 
 function storage(): Storage {
@@ -103,6 +105,7 @@ describe("guest checkout page", () => {
     expect(screen.getByText(/ZP-20260403-ABC/)).toBeInTheDocument();
     expect(screen.getByText(/499\.800/)).toBeInTheDocument();
     expect(screen.getByText(/entrega local/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ver seguimiento" })).toHaveAttribute("href", trackingPath);
   });
 
   it.each([
@@ -143,7 +146,7 @@ describe("guest checkout page", () => {
     const clearCart = vi.fn();
     const onSuccess = vi.fn();
     const receipt = { id: "id", number: "ZP-1", subtotalCop: 1, deliveryType: "local" as const, replayed: false, items: [] } satisfies CheckoutReceipt;
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 201, json: async () => ({ order: { number: receipt.number, subtotalCop: 1, deliveryType: "local" }, whatsapp: { url: "https://not-wa.example" } }) }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 201, json: async () => ({ order: { number: receipt.number, subtotalCop: 1, deliveryType: "local" }, whatsapp: { url: "https://not-wa.example" }, tracking: { path: trackingPath } }) }));
     render(<CheckoutForm items={[item]} subtotalCop={499800} clearCart={clearCart} onSuccess={onSuccess} />);
     fillForm();
     fireEvent.submit(screen.getByRole("form", { name: "Checkout de pedido" }));

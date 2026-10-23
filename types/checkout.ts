@@ -61,6 +61,7 @@ export interface CheckoutSuccess {
   subtotalCop: number;
   deliveryType: "local" | "national";
   whatsappUrl: string;
+  trackingPath: string;
 }
 
 export type CheckoutCartItem = Pick<CartItem, "productId" | "variantId" | "quantity"> & Partial<Pick<CartItem, "productName" | "displayPriceCop">>;

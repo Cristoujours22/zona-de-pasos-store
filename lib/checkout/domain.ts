@@ -151,15 +151,20 @@ export function isTrustedWhatsappUrl(value: unknown): value is string {
   }
 }
 
+export function isTrustedTrackingPath(value: unknown): value is string {
+  return typeof value === "string" && /^\/track\/[0-9a-f-]{36}\.[A-Za-z0-9_-]{43}$/u.test(value);
+}
+
 export function parseCheckoutResponse(value: unknown): CheckoutSuccess | null {
   const root = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
   const order = root?.order && typeof root.order === "object" && !Array.isArray(root.order) ? root.order as Record<string, unknown> : null;
   const whatsapp = root?.whatsapp && typeof root.whatsapp === "object" && !Array.isArray(root.whatsapp) ? root.whatsapp as Record<string, unknown> : null;
+  const tracking = root?.tracking && typeof root.tracking === "object" && !Array.isArray(root.tracking) ? root.tracking as Record<string, unknown> : null;
   const number = order?.number;
   const subtotalCop = order?.subtotalCop;
   const deliveryType = order?.deliveryType;
-  if (typeof number !== "string" || !ORDER_NUMBER.test(number) || !Number.isSafeInteger(subtotalCop) || (subtotalCop as number) < 0 || (deliveryType !== "local" && deliveryType !== "national") || !isTrustedWhatsappUrl(whatsapp?.url)) return null;
-  return { orderNumber: number, subtotalCop: subtotalCop as number, deliveryType, whatsappUrl: whatsapp.url };
+  if (typeof number !== "string" || !ORDER_NUMBER.test(number) || !Number.isSafeInteger(subtotalCop) || (subtotalCop as number) < 0 || (deliveryType !== "local" && deliveryType !== "national") || !isTrustedWhatsappUrl(whatsapp?.url) || !isTrustedTrackingPath(tracking?.path)) return null;
+  return { orderNumber: number, subtotalCop: subtotalCop as number, deliveryType, whatsappUrl: whatsapp.url, trackingPath: tracking.path };
 }
 
 export function checkoutErrorMessage(status: number): string {
