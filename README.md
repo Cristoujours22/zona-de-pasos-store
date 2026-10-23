@@ -38,7 +38,7 @@ The typographic `ZP` mark is a temporary shell treatment. Final logo design, ret
 
 ## T2 authentication and onboarding
 
-Copy the variable names from `config/env.example` into `.env.local`, then provide `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and a 64-character hexadecimal `SETUP_SECRET` generated with `openssl rand -hex 32`. The application validates only this format; cryptographic randomness is the operator's responsibility and cannot be proven by the application. Weak deployment secrets are rejected with HTTP 503. Only the first two values may be public; the service-role key and setup secret are server-only.
+Copy the variable names from `config/env.example` into `.env.local`, then provide `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and a 64-character hexadecimal `SETUP_SECRET` generated with `openssl rand -hex 32`. The application validates only this format; cryptographic randomness is the operator's responsibility and cannot be proven by the application. Weak deployment secrets are rejected with HTTP 503. Only the first two values may be public; the service-role key and setup secret are server-only. Cloudinary uses authenticated server-side uploads with `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`; all three values are server-only, and the API secret must never use a `NEXT_PUBLIC_` name.
 
 Apply `supabase/migrations/202604020001_auth_onboarding.sql` with the Supabase CLI or SQL editor. Then open `/setup` once to create the first developer superadmin. The database completion marker is durable and remains completed even if that user is later deleted. Superadmins create expiring, single-use administrator invitations from `/admin`; invitation tokens are hashed at rest and shared only in URL fragments, never query strings.
 
@@ -46,7 +46,9 @@ The App Router session is refreshed by `proxy.ts`. Every protected route re-read
 
 ## T3 catalog, settings, and inventory foundation
 
-Migration `supabase/migrations/202604020002_catalog_inventory.sql` covers the bounded data/domain slice for S2-S3 and S9-S10: administrator-managed brands, adult sneaker products and variants, Cloudinary public asset metadata, admin-only commerce settings with a safe storefront projection, and audited atomic inventory adjustments. `lib/catalog/domain.ts` contains pure COP validation, stock classification, display-mode rendering, and immutable adjustment helpers. Admin UI, Cloudinary upload code, and service credentials remain deferred.
+Migration `supabase/migrations/202604020002_catalog_inventory.sql` covers the bounded data/domain slice for S2-S3 and S9-S10: administrator-managed brands, adult sneaker products and variants, Cloudinary public asset metadata, admin-only commerce settings with a safe storefront projection, and audited atomic inventory adjustments. `lib/catalog/domain.ts` contains pure COP validation, stock classification, display-mode rendering, and immutable adjustment helpers.
+
+The secured image infrastructure now provides authenticated Node.js upload and deletion routes at `/api/admin/product-images`. Uploads accept JPEG, PNG, WebP, and AVIF files up to 5 MiB, normalize alt text, and remain confined to the `zona-de-pasos/products` prefix. The Cloudinary API secret is read only by `server-only` modules; the browser never receives Cloudinary credentials or uses an unsigned preset. This slice intentionally does not perform magic-byte validation; Cloudinary's decoder behavior remains an external proof gap. Product persistence, catalog admin UI, and the rest of the T3 workflow remain deferred.
 
 After applying the T2 migration, apply this migration with the Supabase CLI or SQL editor.
 
