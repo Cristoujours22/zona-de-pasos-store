@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
           <nav aria-label="Navegación administrativa" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold">
             <Link href="/admin/catalog">Catálogo</Link>
             <Link href="/admin/inventory">Inventario</Link>
+            <Link href="/admin/orders">Pedidos</Link>
             <Link href="/admin/settings">Configuración</Link>
             {actor.role === "developer_superadmin" && <Link href="/admin#invitaciones">Invitaciones</Link>}
           </nav>
