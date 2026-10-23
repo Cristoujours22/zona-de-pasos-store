@@ -6,7 +6,7 @@ create table public.commerce_carriers (
   tracking_url_template text check (
     tracking_url_template is null or (
       length(tracking_url_template) <= 500 and
-      tracking_url_template ~ '^https://[^/?#@[:space:]]+([/?#]|$)' and
+      tracking_url_template ~ '^https://[[:alnum:]]([[:alnum:]-]*[[:alnum:]])?([.][[:alnum:]]([[:alnum:]-]*[[:alnum:]])?)+([/?#]|$)' and
       position('{trackingNumber}' in tracking_url_template) > 0 and
       tracking_url_template !~ '[[:cntrl:]]'
     )
@@ -95,7 +95,7 @@ begin
     or p_slug is null or p_slug !~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'
     or p_active is null or p_position is null or p_position not between 0 and 1000
     or (p_tracking_url_template is not null and (
-      length(p_tracking_url_template) > 500 or p_tracking_url_template !~ '^https://[^/?#@[:space:]]+([/?#]|$)' or
+      length(p_tracking_url_template) > 500 or p_tracking_url_template !~ '^https://[[:alnum:]]([[:alnum:]-]*[[:alnum:]])?([.][[:alnum:]]([[:alnum:]-]*[[:alnum:]])?)+([/?#]|$)' or
       position('{trackingNumber}' in p_tracking_url_template) = 0 or p_tracking_url_template ~ '[[:cntrl:]]'
     )) then raise exception 'invalid_carrier_input'; end if;
 

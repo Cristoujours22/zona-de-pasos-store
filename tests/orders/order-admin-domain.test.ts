@@ -62,6 +62,8 @@ describe("order administration domain", () => {
       position: 4,
     });
     expect(() => parseCarrierInput({ name: "Carrier", trackingUrlTemplate: "http://example.com/{trackingNumber}", active: true, position: 0 })).toThrow(OrderAdminError);
+    expect(() => parseCarrierInput({ name: "Carrier", trackingUrlTemplate: "https://example.com:bad/{trackingNumber}", active: true, position: 0 })).toThrow(OrderAdminError);
+    expect(() => parseCarrierInput({ name: "Carrier", trackingUrlTemplate: "https://example.com:8443/{trackingNumber}", active: true, position: 0 })).toThrow(OrderAdminError);
     expect(() => parseCarrierInput({ name: "Carrier", trackingUrlTemplate: "https://example.com/track", active: true, position: 0 })).toThrow(OrderAdminError);
   });
 });

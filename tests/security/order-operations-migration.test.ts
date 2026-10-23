@@ -11,7 +11,7 @@ describe("order operations migration", () => {
     expect(sql).toMatch(/payment_confirmed_at timestamptz/i);
     expect(sql).toMatch(/payment_confirmed_amount_cop bigint/i);
     expect(sql).toMatch(/payment_internal_note text/i);
-    expect(sql).toContain("tracking_url_template ~ '^https://[^/?#@[:space:]]+([/?#]|$)'");
+    expect(sql).toContain("tracking_url_template ~ '^https://[[:alnum:]]([[:alnum:]-]*[[:alnum:]])?([.][[:alnum:]]([[:alnum:]-]*[[:alnum:]])?)+([/?#]|$)'");
     expect(sql).toMatch(/carrier_name_snapshot text/i);
     expect(sql).toMatch(/tracking_number text/i);
     expect(sql).toMatch(/tracking_url text/i);
