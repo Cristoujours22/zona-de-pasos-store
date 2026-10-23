@@ -37,6 +37,7 @@ describe("admin catalog dashboard", () => {
       if (String(input) === "/api/admin/brands") return Promise.resolve(jsonResponse([brand]));
       if (String(input).startsWith("/api/admin/products/") && init?.method === "PATCH") return Promise.resolve(jsonResponse({ ok: true }));
       if (String(input) === "/api/admin/products") return Promise.resolve(jsonResponse(products));
+      if (String(input) === "/api/admin/settings") return Promise.resolve(jsonResponse({ inventoryLowThreshold: 3, stockDisplayMode: "detailed" }));
       return Promise.reject(new Error("unexpected request"));
     }));
   });
@@ -80,6 +81,20 @@ describe("admin catalog dashboard", () => {
     await waitFor(() => expect(screen.getByText("Producto actualizado correctamente.")).toBeInTheDocument());
     const patchBodies = vi.mocked(fetch).mock.calls.filter(([, init]) => init?.method === "PATCH").map(([, init]) => JSON.parse(String(init?.body)));
     expect(patchBodies.at(-1)).toEqual({ featured: true });
+  });
+
+  it("uses the configured threshold at the stock-status boundary", async () => {
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "/api/admin/brands") return Promise.resolve(jsonResponse([brand]));
+      if (String(input) === "/api/admin/products") return Promise.resolve(jsonResponse(products));
+      if (String(input) === "/api/admin/settings") return Promise.resolve(jsonResponse({ inventoryLowThreshold: 1, stockDisplayMode: "detailed" }));
+      if (String(input).startsWith("/api/admin/products/") && init?.method === "PATCH") return Promise.resolve(jsonResponse({ ok: true }));
+      return Promise.reject(new Error("unexpected request"));
+    }));
+    render(<CatalogAdmin />);
+
+    await waitFor(() => expect(screen.getByText("Air Runner")).toBeInTheDocument());
+    expect(screen.getByTestId("stock-product-1")).toHaveClass("text-ink");
   });
 
   it("reports loading failures in Spanish", async () => {

@@ -13,7 +13,7 @@ export interface AggregateStockState {
   label: string;
 }
 
-export function getAggregateStockState(variants: ProductVariant[], lowThreshold = 3): AggregateStockState {
+export function getAggregateStockState(variants: ProductVariant[], lowThreshold: number): AggregateStockState {
   const quantity = variants.reduce((total, variant) => total + (variant.active ? variant.stockQuantity : 0), 0);
   const status = getStockStatus(quantity, lowThreshold);
   return { quantity, status, label: status === "full" ? "Disponible" : status === "low" ? "Pocas unidades" : "Sin stock" };

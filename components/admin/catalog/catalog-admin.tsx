@@ -3,7 +3,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import type { AdminProductSummary, Brand, ProductLifecycle } from "@/types/catalog";
+import type { AdminProductSummary, Brand, CommerceSettings, ProductLifecycle } from "@/types/catalog";
 import { audienceLabel, formatCop, getAggregateStockState, lifecycleLabel } from "@/lib/catalog/presentation";
 
 type ProductPatch = { lifecycle?: ProductLifecycle; featured?: boolean };
@@ -17,6 +17,16 @@ async function responseError(response: Response, fallback: string): Promise<stri
   }
 }
 
+async function readJson(response: Response, fallback: string): Promise<unknown> {
+  try { return await response.json(); } catch { throw new Error(fallback); }
+}
+
+function isSettings(value: unknown): value is CommerceSettings {
+  if (!value || typeof value !== "object") return false;
+  const threshold = (value as { inventoryLowThreshold?: unknown }).inventoryLowThreshold;
+  return typeof threshold === "number" && Number.isSafeInteger(threshold) && threshold >= 0;
+}
+
 const stockClass: Record<ReturnType<typeof getAggregateStockState>["status"], string> = {
   full: "text-ink",
   low: "text-orange-700",
@@ -26,6 +36,7 @@ const stockClass: Record<ReturnType<typeof getAggregateStockState>["status"], st
 export function CatalogAdmin() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [products, setProducts] = useState<AdminProductSummary[]>([]);
+  const [lowThreshold, setLowThreshold] = useState<number | null>(null);
   const [brandName, setBrandName] = useState("");
   const [loading, setLoading] = useState(true);
   const [brandBusy, setBrandBusy] = useState(false);
@@ -36,11 +47,12 @@ export function CatalogAdmin() {
   useEffect(() => {
     let active = true;
     Promise.all([
-      fetch("/api/admin/brands").then(async (response) => { if (!response.ok) throw new Error(await responseError(response, "No fue posible cargar las marcas.")); return response.json() as Promise<Brand[]>; }),
-      fetch("/api/admin/products").then(async (response) => { if (!response.ok) throw new Error(await responseError(response, "No fue posible cargar los productos.")); return response.json() as Promise<AdminProductSummary[]>; }),
+      fetch("/api/admin/brands").then(async (response) => { if (!response.ok) throw new Error(await responseError(response, "No fue posible cargar las marcas.")); const body = await readJson(response, "No fue posible cargar las marcas."); if (!Array.isArray(body)) throw new Error("No fue posible cargar las marcas."); return body as Brand[]; }),
+      fetch("/api/admin/products").then(async (response) => { if (!response.ok) throw new Error(await responseError(response, "No fue posible cargar los productos.")); const body = await readJson(response, "No fue posible cargar los productos."); if (!Array.isArray(body)) throw new Error("No fue posible cargar los productos."); return body as AdminProductSummary[]; }),
+      fetch("/api/admin/settings").then(async (response) => { if (!response.ok) throw new Error(await responseError(response, "No fue posible cargar la configuración.")); const body = await readJson(response, "No fue posible cargar la configuración."); if (!isSettings(body)) throw new Error("No fue posible cargar la configuración."); return body; }),
     ])
-      .then(([brandItems, productItems]) => { if (active) { setBrands(brandItems); setProducts(productItems); } })
-      .catch((reason: unknown) => { if (active) setError(reason instanceof Error && reason.message !== "network" ? reason.message : "No fue posible cargar el catálogo."); })
+      .then(([brandItems, productItems, settings]) => { if (active) { setBrands(brandItems); setProducts(productItems); setLowThreshold(settings.inventoryLowThreshold); } })
+      .catch((reason: unknown) => { if (active) setError(reason instanceof Error && reason.message !== "network" && reason.message !== "Failed to fetch" ? reason.message : "No fue posible cargar el catálogo."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
@@ -98,7 +110,7 @@ export function CatalogAdmin() {
       <section aria-labelledby="products-title">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Productos</p><h2 className="mt-2 font-display text-4xl font-black uppercase" id="products-title">Catálogo activo</h2></div><a className="rounded-full bg-ink px-5 py-3 text-center text-sm font-bold text-canvas" href="/admin/catalog/new">Nuevo producto</a></div>
         {products.length === 0 ? <p className="mt-6 rounded-lg border border-line bg-canvas p-5 text-sm text-muted">Aún no hay productos en el catálogo.</p> : <div className="mt-6 grid gap-4 lg:grid-cols-2">{products.map((product) => {
-          const stock = getAggregateStockState(product.variants);
+          const stock = getAggregateStockState(product.variants, lowThreshold ?? 0);
           const publicationKey = `${product.id}-lifecycle`;
           const featuredKey = `${product.id}-featured`;
           return <article aria-labelledby={`product-${product.id}`} className="grid gap-5 rounded-2xl border border-line bg-cream p-5" key={product.id}>
