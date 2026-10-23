@@ -70,7 +70,7 @@ function optionalText(value: unknown, message: string, max: number): string | nu
 }
 
 function cop(value: unknown, message: string): number {
-  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0 || value > 2_000_000_000) throw new OrderAdminError("invalid_request", message);
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) throw new OrderAdminError("invalid_request", message);
   return value;
 }
 

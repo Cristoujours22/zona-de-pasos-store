@@ -8,4 +8,5 @@ coverage/
 .env.*
 !.env.example
 .codegraph/
+supabase/.temp/
 .DS_Store

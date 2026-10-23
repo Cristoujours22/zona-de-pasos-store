@@ -28,6 +28,7 @@ describe("order administration domain", () => {
       internalNote: "Verificado en Nequi",
     });
     expect(() => parseConfirmPaymentInput({ expectedUpdatedAt: "invalid", confirmedAmountCop: 249900 })).toThrow(OrderAdminError);
+    expect(parseConfirmPaymentInput({ expectedUpdatedAt: "2026-04-03T10:00:00.000Z", confirmedAmountCop: 2_000_000_001 }).confirmedAmountCop).toBe(2_000_000_001);
     expect(() => parseConfirmPaymentInput({ expectedUpdatedAt: "2026-04-03T10:00:00.000Z", confirmedAmountCop: -1 })).toThrow(OrderAdminError);
     expect(() => parseConfirmPaymentInput({ expectedUpdatedAt: "2026-04-03T10:00:00.000Z", confirmedAmountCop: 249900, internalNote: "x".repeat(501) })).toThrow(OrderAdminError);
   });
