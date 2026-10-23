@@ -20,7 +20,7 @@ The first release uses WhatsApp and human-verified Nequi payments instead of aut
 15. **S15 — Visual direction.** The storefront should combine a campaign-led hero, practical product discovery, editorial spacing, mobile-first layouts, visible sizing, clear shipping/payment information, and prominent WhatsApp conversion paths inspired by Nike, Foot Locker, and Kith without copying their protected branding or assets.
 
 ## Tasks
-- **T1** — S1, S14-S15 — Scaffold the Next.js application, design tokens, public shell, quality tooling, and project documentation. Route: parent/subagent by context backstop. Commit: pending.
+- **T1** — S1, S14-S15 — Scaffold the Next.js application, design tokens, public shell, quality tooling, and project documentation. Route: parent/subagent by context backstop. Commit: `c38a884`.
 - **T2** — S11-S12 — Implement Supabase schema, row-level security, one-time superadmin bootstrap, invitations, sessions, roles, and audit events with tests. Route: security work unit + independent verification. Commit: pending.
 - **T3** — S2-S3, S9-S10 — Implement admin settings, brands, products, variants, manual inventory, stock presentation, and secured Cloudinary uploads with tests. Route: application work unit. Commit: pending.
 - **T4** — S1-S2, S13, S15 — Implement the responsive public homepage, catalog, filters, product detail, and customer-support entry points with tests. Route: application work unit. Commit: pending.
@@ -37,3 +37,4 @@ The first release uses WhatsApp and human-verified Nequi payments instead of aut
 - **L6:** User selected "Configuración inicial + invitaciones": "Un formulario temporal crea al superadmin, se desactiva y luego se invita a cada administrador con un enlace de un solo uso."
 - **L7:** "procedamos asi"
 - **L8:** User selected "Crear el proyecto recomendado": "Iniciar desde cero con Next.js, Supabase y Cloudinary en la ruta propuesta."
+- **L9:** "Cristoujours22 , capaalonso@gmail.com. configura git y si ya esta configurado ignora mi orden"
