@@ -12,6 +12,7 @@ import {
   createAdminInvitation,
   hashToken,
   type InvitationAdapter,
+  type ReconciliationResult,
   type BootstrapAdapter,
 } from "@/lib/auth/domain";
 import { makeInvitationAdapter } from "@/lib/auth/adapters";
@@ -25,6 +26,7 @@ function bootstrapAdapter(overrides: Partial<BootstrapAdapter> = {}): BootstrapA
     getBootstrapState: async () => ({ completedAt: null }),
     createUser: async () => ({ userId: "user-1" }),
     claimBootstrap: async () => true,
+    reconcileBootstrap: async () => "unknown",
     deleteUser: async () => undefined,
     ...overrides,
   };
@@ -36,6 +38,7 @@ function invitationAdapter(record: InvitationRecord, overrides: Partial<Invitati
     getInvitation: async () => record,
     createUser: async () => ({ userId: "user-2" }),
     consumeInvitation: async () => true,
+    reconcileInvitation: async () => "unknown",
     deleteUser: async () => undefined,
     ...overrides,
   };
@@ -103,6 +106,16 @@ describe("secure onboarding domain", () => {
     expect(deleteUser).toHaveBeenCalledWith("user-1");
   });
 
+  it.each(["committed", "not_committed", "unknown"] as ReconciliationResult[])("reconciles bootstrap after an ambiguous claim: %s", async (result) => {
+    const rpcError = new Error("timeout");
+    const deleteUser = vi.fn();
+    const promise = bootstrapFirstSuperadmin({ email: "root@example.com", password: "correct horse", name: "Root", setupSecret }, bootstrapAdapter({ claimBootstrap: async () => { throw rpcError; }, reconcileBootstrap: async () => result, deleteUser }), setupSecret, now);
+    if (result === "committed") await expect(promise).resolves.toEqual({ userId: "user-1" });
+    else if (result === "not_committed") await expect(promise).rejects.toBe(rpcError);
+    else await expect(promise).rejects.toMatchObject({ code: "manual_reconciliation_required" });
+    expect(deleteUser).toHaveBeenCalledTimes(result === "not_committed" ? 1 : 0);
+  });
+
   it("rejects a weak deployment setup secret", async () => {
     await expect(
       bootstrapFirstSuperadmin(
@@ -147,6 +160,17 @@ describe("secure onboarding domain", () => {
     }, { consumeInvitation: async () => false, deleteUser });
     await expect(acceptInvitation({ id: "invite-1", token: "token", password: "correct horse", name: "New Admin" }, adapter, now)).rejects.toMatchObject({ code: "invalid_invitation" });
     expect(deleteUser).toHaveBeenCalledWith("user-2");
+  });
+
+  it.each(["committed", "not_committed", "unknown"] as ReconciliationResult[])("reconciles invitation consumption after an ambiguous call: %s", async (result) => {
+    const rpcError = new Error("timeout");
+    const deleteUser = vi.fn();
+    const record = { id: "invite-1", email: "new@example.com", role: "admin" as const, tokenHash: hashToken("token"), expiresAt: new Date("2026-01-02T12:00:00.000Z"), acceptedAt: null };
+    const promise = acceptInvitation({ id: record.id, token: "token", password: "correct horse", name: "New Admin" }, invitationAdapter(record, { consumeInvitation: async () => { throw rpcError; }, reconcileInvitation: async () => result, deleteUser }), now);
+    if (result === "committed") await expect(promise).resolves.toEqual({ userId: "user-2" });
+    else if (result === "not_committed") await expect(promise).rejects.toBe(rpcError);
+    else await expect(promise).rejects.toMatchObject({ code: "manual_reconciliation_required" });
+    expect(deleteUser).toHaveBeenCalledTimes(result === "not_committed" ? 1 : 0);
   });
 
   it("accepts a valid invitation once", async () => {

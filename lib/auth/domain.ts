@@ -4,7 +4,8 @@ import { assertSuperadmin, type AuthorizationCode } from "@/lib/auth/authorizati
 import { isHighEntropySetupSecret } from "@/lib/validation/auth";
 import type { AdminRole, AuthActor, InvitationRecord } from "@/types/auth";
 
-export type AuthErrorCode = AuthorizationCode | "invalid_setup_secret" | "bootstrap_completed" | "invalid_input" | "bootstrap_race" | "invalid_invitation" | "invitation_expired" | "invitation_used";
+export type AuthErrorCode = AuthorizationCode | "invalid_setup_secret" | "bootstrap_completed" | "invalid_input" | "bootstrap_race" | "invalid_invitation" | "invitation_expired" | "invitation_used" | "manual_reconciliation_required";
+export type ReconciliationResult = "committed" | "not_committed" | "unknown";
 
 export class AuthDomainError extends Error {
   readonly code: AuthErrorCode;
@@ -20,6 +21,7 @@ export interface BootstrapAdapter {
   getBootstrapState(): Promise<{ completedAt: Date | null } | null>;
   createUser(input: { email: string; password: string; name: string; role: AdminRole }): Promise<{ userId: string }>;
   claimBootstrap(input: { userId: string; email: string; name: string; now: Date }): Promise<boolean>;
+  reconcileBootstrap(input: { userId: string; email: string }): Promise<ReconciliationResult>;
   deleteUser(userId: string): Promise<void>;
 }
 
@@ -28,6 +30,7 @@ export interface InvitationAdapter {
   getInvitation(id: string): Promise<InvitationRecord | null>;
   createUser(input: { email: string; password: string; name: string; role: AdminRole }): Promise<{ userId: string }>;
   consumeInvitation(input: { id: string; tokenHash: string; userId: string; name: string; now: Date }): Promise<boolean>;
+  reconcileInvitation(input: { id: string; userId: string; email: string; role: AdminRole }): Promise<ReconciliationResult>;
   deleteUser(userId: string): Promise<void>;
 }
 
@@ -59,6 +62,12 @@ function equalToken(actual: string, expectedHash: string): boolean {
   return actualHash.length === storedHash.length && timingSafeEqual(actualHash, storedHash);
 }
 
+async function reconcile(error: unknown, result: ReconciliationResult, created: { userId: string }, deleteUser: () => Promise<void>): Promise<{ userId: string }> {
+  if (result === "committed") return created;
+  if (result === "unknown") throw new AuthDomainError("manual_reconciliation_required");
+  try { await deleteUser(); } finally { throw error; }
+}
+
 export async function bootstrapFirstSuperadmin(input: { email: string; password: string; name: string; setupSecret: string }, adapter: BootstrapAdapter, expectedSecret: string, now = new Date()): Promise<{ userId: string }> {
   if (!isHighEntropySetupSecret(expectedSecret) || typeof input.setupSecret !== "string" || !sameSecret(input.setupSecret, expectedSecret)) throw new AuthDomainError("invalid_setup_secret");
   requireCredentials(input.email, input.password, input.name);
@@ -67,14 +76,16 @@ export async function bootstrapFirstSuperadmin(input: { email: string; password:
 
   const email = cleanEmail(input.email);
   const created = await adapter.createUser({ email, password: input.password, name: input.name.trim(), role: "developer_superadmin" });
-  try {
-    const claimed = await adapter.claimBootstrap({ userId: created.userId, email, name: input.name.trim(), now });
-    if (claimed) return created;
-    throw new AuthDomainError("bootstrap_race");
-  } catch (error) {
-    await adapter.deleteUser(created.userId);
-    throw error;
+  let claimed: boolean;
+  try { claimed = await adapter.claimBootstrap({ userId: created.userId, email, name: input.name.trim(), now }); }
+  catch (error) {
+    let result: ReconciliationResult = "unknown";
+    try { result = await adapter.reconcileBootstrap({ userId: created.userId, email }); } catch {}
+    return reconcile(error, result, created, () => adapter.deleteUser(created.userId));
   }
+  if (claimed) return created;
+  await adapter.deleteUser(created.userId);
+  throw new AuthDomainError("bootstrap_race");
 }
 
 export async function createAdminInvitation(actor: AuthActor, input: { email: string; role: AdminRole }, adapter: Pick<InvitationAdapter, "createInvitation">, now = new Date()): Promise<{ id: string; token: string; expiresAt: Date }> {
@@ -96,14 +107,16 @@ export async function acceptInvitation(input: { id: string; token: string; passw
   requireCredentials(invitation.email, input.password, input.name);
 
   const created = await adapter.createUser({ email: invitation.email, password: input.password, name: input.name.trim(), role: invitation.role });
-  try {
-    const consumed = await adapter.consumeInvitation({ id: invitation.id, tokenHash: invitation.tokenHash, userId: created.userId, name: input.name.trim(), now });
-    if (consumed) return created;
-    throw new AuthDomainError("invalid_invitation");
-  } catch (error) {
-    await adapter.deleteUser(created.userId);
-    throw error;
+  let consumed: boolean;
+  try { consumed = await adapter.consumeInvitation({ id: invitation.id, tokenHash: invitation.tokenHash, userId: created.userId, name: input.name.trim(), now }); }
+  catch (error) {
+    let result: ReconciliationResult = "unknown";
+    try { result = await adapter.reconcileInvitation({ id: invitation.id, userId: created.userId, email: invitation.email, role: invitation.role }); } catch {}
+    return reconcile(error, result, created, () => adapter.deleteUser(created.userId));
   }
+  if (consumed) return created;
+  await adapter.deleteUser(created.userId);
+  throw new AuthDomainError("invalid_invitation");
 }
 
 export { hashToken };

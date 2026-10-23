@@ -27,6 +27,16 @@ export function makeBootstrapAdapter(): BootstrapAdapter {
       throwOnError(error);
       return data === true;
     },
+    async reconcileBootstrap(input) {
+      try {
+        const [{ data: state, error: stateError }, { data: profile, error: profileError }] = await Promise.all([
+          admin.from("bootstrap_state").select("completed_at, completed_by").eq("singleton", true).maybeSingle(),
+          admin.from("admin_profiles").select("id, email, role").eq("id", input.userId).maybeSingle(),
+        ]);
+        if (stateError || profileError) return "unknown";
+        return state?.completed_by === input.userId && Boolean(state.completed_at) && profile?.id === input.userId && profile.email === input.email && profile.role === "developer_superadmin" ? "committed" : "not_committed";
+      } catch { return "unknown"; }
+    },
     async deleteUser(userId) {
       const { error } = await admin.auth.admin.deleteUser(userId);
       throwOnError(error);
@@ -58,6 +68,16 @@ export function makeInvitationAdapter(): InvitationAdapter {
       const { data, error } = await admin.rpc("consume_admin_invitation", { p_id: input.id, p_token_hash: input.tokenHash, p_user_id: input.userId, p_display_name: input.name });
       throwOnError(error);
       return typeof data === "string";
+    },
+    async reconcileInvitation(input) {
+      try {
+        const [{ data: invitation, error: invitationError }, { data: profile, error: profileError }] = await Promise.all([
+          admin.from("admin_invitations").select("accepted_at, accepted_by").eq("id", input.id).maybeSingle(),
+          admin.from("admin_profiles").select("id, email, role").eq("id", input.userId).maybeSingle(),
+        ]);
+        if (invitationError || profileError) return "unknown";
+        return invitation?.accepted_by === input.userId && Boolean(invitation.accepted_at) && profile?.id === input.userId && profile.email === input.email && profile.role === input.role ? "committed" : "not_committed";
+      } catch { return "unknown"; }
     },
     async deleteUser(userId) {
       const { error } = await admin.auth.admin.deleteUser(userId);
