@@ -44,7 +44,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const CONTROL = /[\u0000-\u001f\u007f-\u009f]/u;
 const TRACKING = /^[\p{L}\p{N}][\p{L}\p{N}._\-/]{1,99}$/u;
 const CARRIER_NAME = /^[\p{L}\p{N}][\p{L}\p{N}\s.&'()-]{1,79}$/u;
-const PUBLIC_HTTPS_HOST = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/iu;
+const PUBLIC_HTTPS_HOST = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z](?:[a-z0-9-]*[a-z0-9])?$/iu;
 
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new OrderAdminError("invalid_request", "La solicitud no es válida.");
