@@ -44,6 +44,12 @@ Apply `supabase/migrations/202604020001_auth_onboarding.sql` with the Supabase C
 
 The App Router session is refreshed by `proxy.ts`. Every protected route re-reads the authenticated user and profile, rejects suspended accounts, and enforces its required role server-side. The service-role client lives only in `lib/supabase/admin.ts` and is never imported by client components.
 
+## T3 catalog, settings, and inventory foundation
+
+Migration `supabase/migrations/202604020002_catalog_inventory.sql` covers the bounded data/domain slice for S2-S3 and S9-S10: administrator-managed brands, adult sneaker products and variants, Cloudinary public asset metadata, admin-only commerce settings with a safe storefront projection, and audited atomic inventory adjustments. `lib/catalog/domain.ts` contains pure COP validation, stock classification, display-mode rendering, and immutable adjustment helpers. Admin UI, Cloudinary upload code, and service credentials remain deferred.
+
+After applying the T2 migration, apply this migration with the Supabase CLI or SQL editor.
+
 After adding the Supabase dependencies, run:
 
 ```bash
