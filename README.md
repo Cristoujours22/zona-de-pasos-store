@@ -64,6 +64,14 @@ Pure catalog filters and stable sorting live in `lib/storefront/filters.ts`. Wha
 
 This bounded slice covers T4 S1-S2, S9-S10 public stock behavior, S13, and S15.
 
+## T5 guest-order foundation
+
+Migration `supabase/migrations/202604020004_guest_orders.sql` adds private order and item snapshots, RLS, and the service-role-only creation function `create_guest_order_atomic`, reached publicly only through `/api/orders`. The RPC starts orders in pending confirmation, accepts a high-entropy UUID idempotency key, snapshots published product data, validates active stock without reserving or deducting inventory, and classifies local delivery by normalized city equality with the configured dispatch origin. Shipping cost, payment confirmation, proof, and administrative overrides remain later workflow concerns.
+
+`POST /api/orders` validates buyer and Colombian delivery data before any provider call, accepts realistic alphanumeric Colombian neighborhood names while keeping department/city strict, requires configured public WhatsApp, reads that setting through the anon client, invokes the validated RPC through the server-only service-role client, and returns only a safe order receipt with database-authoritative item summaries plus a structured itemized WhatsApp handoff. New orders are limited per normalized phone/document in a short database window; same-key replays are exempt. Production WAF/edge limits remain an external defense. Spanish errors distinguish invalid input, stock conflicts, rate limiting, missing WhatsApp configuration, idempotent replay, and ambiguous database failure. Cart, checkout UI, Nequi verification, and T6 administration remain deferred.
+
+This bounded slice covers T5 S4-S6, the delivery-data portion of S5, and the stock-at-creation rule from S9.
+
 After adding the Supabase dependencies, run:
 
 ```bash
