@@ -21,7 +21,7 @@ The first release uses WhatsApp and human-verified Nequi payments instead of aut
 
 ## Tasks
 - **T1** — S1, S14-S15 — Scaffold the Next.js application, design tokens, public shell, quality tooling, and project documentation. Route: parent/subagent by context backstop. Commit: `c38a884`.
-- **T2** — S11-S12 — Implement Supabase schema, row-level security, one-time superadmin bootstrap, invitations, sessions, roles, and audit events with tests. Route: security work unit + independent verification. Commit: pending.
+- **T2** — S11-S12 — Implement Supabase schema, row-level security, one-time superadmin bootstrap, invitations, sessions, roles, and audit events with tests. Route: security work unit + independent verification. Commits: `04865f3`, `da45568`, `c9eb7c0`, `5ae6650`; bounded correction: `57cdb06`. Native review: `review-1b37a2a43e51acb6` approved and acknowledged.
 - **T3** — S2-S3, S9-S10 — Implement admin settings, brands, products, variants, manual inventory, stock presentation, and secured Cloudinary uploads with tests. Route: application work unit. Commit: pending.
 - **T4** — S1-S2, S13, S15 — Implement the responsive public homepage, catalog, filters, product detail, and customer-support entry points with tests. Route: application work unit. Commit: pending.
 - **T5** — S4-S6 — Implement cart, Colombian delivery form, order creation, WhatsApp payload generation, and human Nequi verification states with tests. Route: application work unit. Commit: pending.
@@ -38,3 +38,4 @@ The first release uses WhatsApp and human-verified Nequi payments instead of aut
 - **L7:** "procedamos asi"
 - **L8:** User selected "Crear el proyecto recomendado": "Iniciar desde cero con Next.js, Supabase y Cloudinary en la ruta propuesta."
 - **L9:** "Cristoujours22 , capaalonso@gmail.com. configura git y si ya esta configurado ignora mi orden"
+- **L10:** T2 verification evidence: 34 tests, lint, typecheck, and production build passed. Independent security verification passed after one correction round. Native review `review-1b37a2a43e51acb6` required and approved bounded correction `57cdb06`; acknowledgement burned the authority.
