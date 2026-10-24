@@ -1,0 +1,12 @@
+# Repository-owned Supabase configuration.
+# Keep this file intentionally minimal so `supabase config push` cannot overwrite
+# hosted settings that this application does not manage.
+project_id = "zona-de-pasos-store"
+
+[auth]
+# Setup and invitation flows provision administrators through server-side admin APIs.
+enable_signup = false
+
+[auth.email]
+# The MVP has no public customer or administrator registration.
+enable_signup = false
