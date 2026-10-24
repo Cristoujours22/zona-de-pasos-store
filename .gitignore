@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+coverage/
+.vitest/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.codegraph/
+supabase/.temp/
+.DS_Store
