@@ -10,3 +10,4 @@ coverage/
 .codegraph/
 supabase/.temp/
 .DS_Store
+.vercel
