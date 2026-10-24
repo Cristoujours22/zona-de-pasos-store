@@ -3,11 +3,11 @@ export const siteConfig = {
   market: "solo para Colombia",
   audience: "tenis para hombre y mujer adultos",
   currency: "pesos colombianos",
-  supportHref: "#soporte",
+  supportHref: "/#soporte",
 } as const;
 
 export const navigation = [
-  { label: "Colección", href: "#coleccion" },
-  { label: "Cómo comprar", href: "#guia" },
+  { label: "Catálogo", href: "/catalog" },
+  { label: "Cómo comprar", href: "/#guia" },
   { label: "Soporte", href: siteConfig.supportHref },
 ] as const;
