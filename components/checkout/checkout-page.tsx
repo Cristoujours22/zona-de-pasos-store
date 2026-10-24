@@ -172,7 +172,7 @@ function SuccessSummary({ result, navigateToWhatsapp }: { result: CheckoutSucces
           <div><dt className="text-muted">Entrega</dt><dd className="mt-1 font-bold">{result.deliveryType === "local" ? "Entrega local" : "Envío nacional"}</dd></div>
         </dl>
         <p className="text-sm leading-6 text-muted">Presiona el botón para abrir WhatsApp y enviar el pedido itemizado. No se abrirá automáticamente.</p>
-        <button className="justify-self-start rounded-full bg-ink px-6 py-3 font-bold text-canvas" type="button" onClick={() => navigateToWhatsapp(result.whatsappUrl)}>Abrir WhatsApp para enviar el pedido</button>
+        <div className="flex flex-wrap gap-3"><button className="rounded-full bg-ink px-6 py-3 font-bold text-canvas" type="button" onClick={() => navigateToWhatsapp(result.whatsappUrl)}>Abrir WhatsApp para enviar el pedido</button><Link className="rounded-full border border-ink px-6 py-3 font-bold" href={result.trackingPath}>Ver seguimiento</Link></div>
         <Link className="justify-self-start text-sm font-bold underline underline-offset-4" href="/catalog">Volver al catálogo</Link>
       </section>
     </main>

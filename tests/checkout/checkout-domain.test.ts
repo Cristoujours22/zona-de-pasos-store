@@ -88,8 +88,10 @@ describe("checkout domain", () => {
     expect(isTrustedWhatsappUrl("https://wa.me/573001234567?text=pedido")).toBe(true);
     expect(isTrustedWhatsappUrl("https://evil.example/steal")).toBe(false);
     expect(isTrustedWhatsappUrl("http://wa.me/573001234567")).toBe(false);
-    expect(parseCheckoutResponse({ order: { number: "ZP-20260403-ABC", subtotalCop: 249900, deliveryType: "local" }, whatsapp: { url: "https://wa.me/573001234567?text=items" } })).toMatchObject({ orderNumber: "ZP-20260403-ABC", subtotalCop: 249900, deliveryType: "local" });
-    expect(parseCheckoutResponse({ order: { number: "ZP-1", subtotalCop: 1, deliveryType: "local" }, whatsapp: { url: "https://evil.example" } })).toBeNull();
+    const path = "/track/11111111-1111-4111-8111-111111111111.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    expect(parseCheckoutResponse({ order: { number: "ZP-20260403-ABC", subtotalCop: 249900, deliveryType: "local" }, whatsapp: { url: "https://wa.me/573001234567?text=items" }, tracking: { path } })).toMatchObject({ orderNumber: "ZP-20260403-ABC", subtotalCop: 249900, deliveryType: "local", trackingPath: path });
+    expect(parseCheckoutResponse({ order: { number: "ZP-1", subtotalCop: 1, deliveryType: "local" }, whatsapp: { url: "https://evil.example" }, tracking: { path } })).toBeNull();
+    expect(parseCheckoutResponse({ order: { number: "ZP-1", subtotalCop: 1, deliveryType: "local" }, whatsapp: { url: "https://wa.me/573001234567" }, tracking: { path: "/admin" } })).toBeNull();
     expect(checkoutErrorMessage(409)).toMatch(/disponibilidad/i);
     expect(checkoutErrorMessage(429)).toMatch(/límite/i);
     expect(checkoutErrorMessage(503)).toMatch(/confirmar/i);

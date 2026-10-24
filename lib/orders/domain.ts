@@ -143,7 +143,7 @@ function formatCop(value: number): string {
   return new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 }).format(value);
 }
 
-export function buildWhatsAppHandoff(phone: string, receipt: GuestOrderReceipt): WhatsAppHandoff {
+export function buildWhatsAppHandoff(phone: string, receipt: GuestOrderReceipt, trackingUrl?: string): WhatsAppHandoff {
   const normalizedPhone = normalizeWhatsappPhone(phone);
   if (!normalizedPhone) throw new OrderWhatsAppNotConfiguredError();
   const deliveryLabel = receipt.deliveryType === "local" ? "Entrega local" : "Envío nacional";
@@ -154,6 +154,7 @@ export function buildWhatsAppHandoff(phone: string, receipt: GuestOrderReceipt):
     ...itemLines,
     deliveryLabel,
     `Subtotal de productos: $${formatCop(receipt.subtotalCop)} COP`,
+    ...(trackingUrl ? [`Seguimiento del pedido: ${trackingUrl}`] : []),
     "Quedo atento(a) a la confirmación.",
   ].join("\n");
   return { url: `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`, message };
