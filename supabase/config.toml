@@ -11,5 +11,5 @@ additional_redirect_urls = ["https://zona-de-pasos-store.vercel.app/auth/invite"
 enable_signup = false
 
 [auth.email]
-# The MVP has no public customer or administrator registration.
-enable_signup = false
+# Keep password login enabled for provisioned administrators. Global signup remains disabled.
+enable_signup = true
