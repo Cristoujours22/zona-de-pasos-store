@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { navigation } from "@/lib/site";
+import { CartLink } from "@/components/cart/cart-link";
 
 import { ArrowUpRight } from "./icons";
 import { BrandMark } from "./brand-mark";
@@ -21,16 +22,19 @@ export function SiteHeader({ supportUrl = null }: SiteHeaderProps) {
             </Link>
           ))}
         </nav>
-        {supportUrl ? (
-          <a className="group inline-flex items-center gap-2 rounded-full border border-ink px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:bg-ink hover:text-canvas" href={supportUrl} rel="noreferrer" target="_blank">
-            WhatsApp
-            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
-        ) : (
-          <span aria-label="WhatsApp no está configurado" className="inline-flex cursor-not-allowed items-center rounded-full border border-line px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.13em] text-muted">
-            WhatsApp no disponible
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          <CartLink />
+          {supportUrl ? (
+            <a className="group inline-flex items-center gap-2 rounded-full border border-ink px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:bg-ink hover:text-canvas" href={supportUrl} rel="noreferrer" target="_blank">
+              WhatsApp
+              <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+          ) : (
+            <span aria-label="WhatsApp no está configurado" className="inline-flex cursor-not-allowed items-center rounded-full border border-line px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.13em] text-muted">
+              WhatsApp no disponible
+            </span>
+          )}
+        </div>
       </div>
     </header>
   );

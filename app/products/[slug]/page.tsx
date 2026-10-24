@@ -3,7 +3,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { AudienceLabel, Price, StockLabel } from "@/components/storefront";
+import { ProductPurchase } from "@/components/cart/product-purchase";
+import { AudienceLabel, Price } from "@/components/storefront";
 import { SiteHeader } from "@/components/site-header";
 import { loadPublicCatalog } from "@/lib/storefront/catalog";
 import { siteConfig } from "@/lib/site";
@@ -77,19 +78,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p className="mt-6 text-2xl font-bold"><Price value={product.priceCop} /></p>
             {product.description && <p className="mt-6 max-w-xl leading-7 text-muted">{product.description}</p>}
 
-            <section aria-labelledby="variants-title" className="mt-10 border-t border-line pt-7">
-              <div className="flex items-end justify-between gap-4"><h2 className="font-display text-2xl font-black uppercase" id="variants-title">Talla, color y SKU</h2><span className="text-sm text-muted">{product.variants.length} opciones</span></div>
-              {product.variants.length > 0 ? (
-                <ul className="mt-5 grid gap-3">
-                  {product.variants.map((variant) => (
-                    <li className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-cream p-4" key={variant.id}>
-                      <div className="grid gap-1 text-sm"><span className="font-bold">Talla {variant.size}</span><span className="text-muted">Color: {variant.color}</span><span className="text-muted">SKU: {variant.sku}</span></div>
-                      <StockLabel available={variant.available} label={variant.stockLabel} />
-                    </li>
-                  ))}
-                </ul>
-              ) : <p className="mt-5 rounded-xl border border-dashed border-line p-4 text-sm text-muted">No hay opciones disponibles para mostrar.</p>}
-            </section>
+            <ProductPurchase product={product} />
 
             <section aria-labelledby="fulfillment-title" className="mt-10 grid gap-5 border-t border-line pt-7">
               <h2 className="font-display text-2xl font-black uppercase" id="fulfillment-title">Pago y envío</h2>
@@ -97,11 +86,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <div className="rounded-xl bg-lilac/40 p-4"><h3 className="font-bold">Pago anticipado por Nequi</h3><p className="mt-2 text-sm leading-5 text-muted">El comprobante se revisa por WhatsApp con verificación humana antes de confirmar disponibilidad.</p></div>
                 <div className="rounded-xl bg-acid/50 p-4"><h3 className="font-bold">Envíos locales y nacionales</h3><p className="mt-2 text-sm leading-5 text-muted">{catalog.settings.dispatchOriginCity ? `Envío local desde ${catalog.settings.dispatchOriginCity}; para otras ciudades de Colombia coordinamos un envío nacional.` : "Coordinamos envíos locales y nacionales dentro de Colombia según la ciudad de destino."}</p></div>
               </div>
-              <p className="text-sm text-muted">La disponibilidad se confirma antes de cualquier operación. El carrito y la creación de pedidos estarán disponibles en el siguiente paso.</p>
+              <p className="text-sm text-muted">La disponibilidad se confirma antes de cualquier operación. Revisa tu carrito antes de continuar al siguiente paso.</p>
             </section>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button aria-label="Carrito: próximo paso" className="cursor-not-allowed rounded-full border border-line bg-line/40 px-5 py-3 text-sm font-bold text-muted" disabled type="button">Carrito: próximo paso</button>
               <SupportLink supportUrl={catalog.settings.supportUrl} />
             </div>
           </div>
