@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { CartProvider } from "@/components/cart/cart-provider";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +17,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es">
       <body>
         <a className="skip-link" href="#contenido">Saltar al contenido</a>
-        {children}
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );

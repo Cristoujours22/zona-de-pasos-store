@@ -1,40 +1,36 @@
 import Link from "next/link";
 
-import { ArrowRight, ArrowUpRight, MessageCircle, Plus } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, MessageCircle } from "@/components/icons";
+import { ProductCard } from "@/components/storefront";
 import { SiteHeader } from "@/components/site-header";
+import { loadPublicCatalog } from "@/lib/storefront/catalog";
 import { siteConfig } from "@/lib/site";
 
-const collectionCards = [
-  {
-    index: "01",
-    title: "Movimiento diario",
-    copy: "Amortiguación y comodidad para la rutina que no se detiene.",
-    tone: "bg-coral",
-  },
-  {
-    index: "02",
-    title: "Street essentials",
-    copy: "Siluetas versátiles para darle otra dirección a tu look.",
-    tone: "bg-acid",
-  },
-  {
-    index: "03",
-    title: "Ritmo ligero",
-    copy: "Pares que acompañan tus planes desde temprano hasta tarde.",
-    tone: "bg-lilac",
-  },
-];
+export const dynamic = "force-dynamic";
 
-const buyingGuide = [
-  ["01", "Elige tu ritmo", "Explora la selección y encuentra la silueta que va contigo."],
-  ["02", "Confirma tu talla", "Mostraremos la información de tallas de forma clara y visible."],
-  ["03", "Hablemos por WhatsApp", "Te ayudamos a confirmar disponibilidad, pago y envío."],
-];
+function SupportAction({ supportUrl }: { supportUrl: string | null }) {
+  return supportUrl ? (
+    <a className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-bold text-ink underline decoration-line underline-offset-8 transition-colors hover:text-muted" href={supportUrl} rel="noreferrer" target="_blank">
+      <MessageCircle className="size-4" />
+      Hablar por WhatsApp
+    </a>
+  ) : (
+    <span aria-label="WhatsApp no está configurado" className="inline-flex items-center gap-2 rounded-full border border-ink/20 px-4 py-3 text-sm font-bold text-muted">
+      <MessageCircle className="size-4" />
+      WhatsApp no está configurado
+    </span>
+  );
+}
 
-export default function HomePage() {
+export default async function HomePage() {
+  const catalog = await loadPublicCatalog();
+  const featured = catalog.products.filter((product) => product.featured).slice(0, 4);
+  const newest = catalog.products.slice(0, 4);
+  const supportUrl = catalog.settings.supportUrl;
+
   return (
     <>
-      <SiteHeader />
+      <SiteHeader supportUrl={supportUrl} />
       <main id="contenido">
         <section aria-labelledby="hero-title" className="overflow-hidden border-b border-line">
           <div className="shell grid min-h-[39rem] items-center gap-12 py-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:py-20">
@@ -44,17 +40,14 @@ export default function HomePage() {
                 Tu próximo paso empieza aquí.
               </h1>
               <p className="mt-8 max-w-md text-lg leading-7 text-muted">
-                Tenis para hombre y mujer adultos, elegidos para moverte con intención. Una nueva forma de encontrar tu par en Colombia.
+                Tenis para hombre y mujer adultos, elegidos para moverte con intención. Descubre pares publicados por marcas que ya hacen parte de la selección en Colombia.
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-3">
-                <Link className="inline-flex items-center gap-3 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-canvas transition-transform hover:-translate-y-0.5" href="#coleccion">
-                  Ver la selección
+                <Link className="inline-flex items-center gap-3 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-canvas transition-transform hover:-translate-y-0.5" href="/catalog">
+                  Ver catálogo
                   <ArrowRight className="size-4" />
                 </Link>
-                <Link className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-bold text-ink underline decoration-line underline-offset-8 transition-colors hover:text-muted" href="#soporte">
-                  <MessageCircle className="size-4" />
-                  Hablar por WhatsApp
-                </Link>
+                <SupportAction supportUrl={supportUrl} />
               </div>
               <div className="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-line pt-5 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-muted">
                 <span>Precios en COP</span>
@@ -74,7 +67,7 @@ export default function HomePage() {
                 <span className="absolute left-[26%] top-7 h-1.5 w-[42%] -rotate-3 bg-ink/70 shadow-[0_1.2rem_0_var(--ink)]" />
                 <span className="absolute -right-2 top-4 size-12 rounded-full border-4 border-ink/20" />
               </div>
-              <span className="absolute left-7 top-1/2 rounded-full bg-acid px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em] text-ink">Nuevo ritmo</span>
+              <span className="absolute left-7 top-1/2 rounded-full bg-acid px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em] text-ink">Nueva selección</span>
             </div>
           </div>
         </section>
@@ -83,8 +76,8 @@ export default function HomePage() {
           <div className="shell grid divide-y divide-canvas/15 py-1 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {[
               ["01", "Solo Colombia", "Una experiencia pensada para nuestro mercado."],
-              ["02", "Pago por Nequi", "Acompañamiento humano para confirmar tu compra."],
-              ["03", "Envío a tu ritmo", "Opciones locales y nacionales por definir contigo."],
+              ["02", "Pago por Nequi", "Pago anticipado y verificación humana antes de confirmar."],
+              ["03", "Envío a tu ritmo", "Envíos locales y nacionales con orientación por WhatsApp."],
             ].map(([number, title, copy]) => (
               <div className="flex gap-4 py-6 sm:px-7 sm:first:pl-0 sm:last:pr-0" key={number}>
                 <span className="font-mono text-xs text-acid">{number}</span>
@@ -97,51 +90,93 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section aria-labelledby="collection-title" className="shell py-24 sm:py-32" id="coleccion">
-          <div className="flex flex-col justify-between gap-7 md:flex-row md:items-end">
+        <section aria-labelledby="audience-title" className="shell py-20 sm:py-24">
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
-              <p className="eyebrow">La selección está tomando forma</p>
-              <h2 className="mt-4 max-w-xl font-display text-5xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-ink sm:text-7xl" id="collection-title">
-                Menos ruido. Más movimiento.
-              </h2>
+              <p className="eyebrow">Encuentra tu dirección</p>
+              <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-ink sm:text-6xl" id="audience-title">Empieza por tu ritmo.</h2>
             </div>
-            <p className="max-w-xs text-sm leading-6 text-muted">Una vitrina clara para elegir tus próximos tenis, sin perderte entre opciones.</p>
+            <p className="max-w-sm text-sm leading-6 text-muted">Filtra la selección por audiencia y sigue descubriendo sin perder de vista las tallas y la disponibilidad.</p>
           </div>
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {collectionCards.map((card) => (
-              <article className="group relative min-h-80 overflow-hidden rounded-[1.5rem] border border-line bg-cream p-6" key={card.index}>
-                <div aria-hidden="true" className={`absolute -right-8 -top-8 size-36 rounded-full ${card.tone} opacity-90 transition-transform duration-500 group-hover:scale-125`} />
-                <div className="relative flex h-full min-h-68 flex-col justify-between">
-                  <div className="flex items-start justify-between">
-                    <span className="font-mono text-xs text-muted">{card.index}</span>
-                    <Plus className="size-5 text-ink" />
-                  </div>
-                  <div>
-                    <p className="mb-3 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-muted">Colección / próximamente</p>
-                    <h3 className="max-w-[12rem] font-display text-3xl font-black uppercase leading-[0.9] tracking-[-0.05em] text-ink">{card.title}</h3>
-                    <p className="mt-4 max-w-xs text-sm leading-5 text-muted">{card.copy}</p>
-                  </div>
-                </div>
-              </article>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["Tenis para hombre", "/catalog?audience=men", "Movimiento diario y siluetas versátiles."],
+              ["Tenis para mujer", "/catalog?audience=women", "Pares para acompañar todos tus planes."],
+              ["Selección unisex", "/catalog?audience=unisex", "Encuentra tu par sin etiquetas."],
+            ].map(([label, href, copy]) => (
+              <Link className="group rounded-2xl border border-line bg-cream p-6 transition-transform hover:-translate-y-1" href={href} key={href}>
+                <span className="flex items-center justify-between font-display text-2xl font-black uppercase leading-none tracking-tight">{label}<ArrowUpRight className="size-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" /></span>
+                <span className="mt-10 block max-w-xs text-sm leading-5 text-muted">{copy}</span>
+              </Link>
             ))}
           </div>
         </section>
+
+        {(catalog.status === "database_error" || catalog.status === "missing_environment") && (
+          <section aria-label="Estado del catálogo" className="shell pb-12">
+            <p className="rounded-2xl border border-red-700/30 bg-red-50 p-5 text-sm text-red-800" role="alert">{catalog.message ?? "No fue posible cargar el catálogo. Intenta de nuevo más tarde."}</p>
+          </section>
+        )}
+
+        {catalog.status === "empty" && (
+          <section aria-label="Estado del catálogo" className="shell pb-20">
+            <div className="rounded-[2rem] border border-dashed border-line bg-cream p-8 sm:p-12" role="status">
+              <p className="eyebrow">Selección en preparación</p>
+              <h2 className="mt-4 max-w-xl font-display text-4xl font-black uppercase leading-none tracking-tight">La selección se está preparando.</h2>
+              <p className="mt-5 max-w-lg leading-6 text-muted">Aún no hay productos publicados. Vuelve pronto para conocer los pares disponibles en Colombia.</p>
+            </div>
+          </section>
+        )}
+
+        {catalog.status === "ready" && (
+          <>
+            {featured.length > 0 && (
+              <section aria-labelledby="featured-title" className="border-y border-line bg-cream" id="coleccion">
+                <div className="shell py-20 sm:py-28">
+                  <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+                    <div>
+                      <p className="eyebrow">Selección destacada</p>
+                      <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-ink sm:text-7xl" id="featured-title">Menos ruido. Más movimiento.</h2>
+                    </div>
+                    <Link className="inline-flex items-center gap-2 text-sm font-bold underline underline-offset-8" href="/catalog">Ver toda la selección <ArrowUpRight className="size-4" /></Link>
+                  </div>
+                  <div className="mt-12 grid gap-x-5 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+                    {featured.map((product) => <ProductCard href={`/products/${product.slug}`} key={product.id} product={product} />)}
+                  </div>
+                </div>
+              </section>
+            )}
+            <section aria-labelledby="new-title" className="shell py-20 sm:py-28" id="novedades">
+              <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+                <div>
+                  <p className="eyebrow">Recién publicados</p>
+                  <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[0.9] tracking-[-0.06em] text-ink sm:text-7xl" id="new-title">Lo nuevo toma el paso.</h2>
+                </div>
+                <p className="max-w-xs text-sm leading-6 text-muted">Productos publicados con precio en pesos colombianos, tallas visibles y disponibilidad sujeta a confirmación.</p>
+              </div>
+              <div className="mt-12 grid gap-x-5 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+                {newest.map((product) => <ProductCard href={`/products/${product.slug}`} key={product.id} product={product} />)}
+              </div>
+            </section>
+          </>
+        )}
 
         <section aria-labelledby="guide-title" className="border-y border-line bg-lilac/30" id="guia">
           <div className="shell grid gap-12 py-24 sm:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div>
               <p className="eyebrow">Tu compra, sin complicaciones</p>
               <h2 className="mt-4 max-w-md font-display text-5xl font-black uppercase leading-[0.88] tracking-[-0.06em] text-ink sm:text-6xl" id="guide-title">De la idea al paso.</h2>
-              <p className="mt-7 max-w-sm leading-6 text-muted">Estamos diseñando un recorrido directo: descubrir, confirmar y conversar. Sin cuentas obligatorias ni letras pequeñas.</p>
+              <p className="mt-7 max-w-sm leading-6 text-muted">Descubre el producto, revisa talla y color, y conversa con nosotros para confirmar disponibilidad, pago y envío.</p>
             </div>
             <ol className="divide-y divide-ink/15">
-              {buyingGuide.map(([number, title, copy]) => (
+              {[
+                ["01", "Elige tu ritmo", "Explora la selección y encuentra la silueta que va contigo."],
+                ["02", "Confirma tu talla", "La talla, el color, el SKU y la disponibilidad se muestran de forma clara."],
+                ["03", "Hablemos por WhatsApp", "Te ayudamos a confirmar disponibilidad, pago anticipado por Nequi y envío."],
+              ].map(([number, title, copy]) => (
                 <li className="grid gap-4 py-6 first:pt-0 last:pb-0 sm:grid-cols-[3rem_1fr]" key={number}>
                   <span className="font-mono text-xs text-muted">{number}</span>
-                  <div>
-                    <h3 className="text-xl font-bold tracking-tight text-ink">{title}</h3>
-                    <p className="mt-2 max-w-lg leading-6 text-muted">{copy}</p>
-                  </div>
+                  <div><h3 className="text-xl font-bold tracking-tight text-ink">{title}</h3><p className="mt-2 max-w-lg leading-6 text-muted">{copy}</p></div>
                 </li>
               ))}
             </ol>
@@ -154,11 +189,8 @@ export default function HomePage() {
             <div className="relative max-w-2xl">
               <p className="eyebrow">Estamos a un mensaje</p>
               <h2 className="mt-5 max-w-xl font-display text-5xl font-black uppercase leading-[0.86] tracking-[-0.07em] text-ink sm:text-7xl" id="support-title">¿Listo para dar el siguiente paso?</h2>
-              <p className="mt-7 max-w-md text-base leading-6 text-ink/70">El canal de atención por WhatsApp será configurable desde la tienda. Por ahora, este espacio guarda la ruta para acompañarte cuando abramos.</p>
-              <Link className="mt-9 inline-flex items-center gap-3 rounded-full bg-ink px-6 py-3.5 text-sm font-bold text-canvas transition-transform hover:-translate-y-0.5" href="#contenido">
-                Volver arriba
-                <ArrowUpRight className="size-4" />
-              </Link>
+              <p className="mt-7 max-w-md text-base leading-6 text-ink/70">Te orientamos sobre tallas, disponibilidad, pago anticipado por Nequi y envíos locales o nacionales.</p>
+              <div className="mt-9"><SupportAction supportUrl={supportUrl} /></div>
             </div>
           </div>
         </section>
@@ -167,7 +199,7 @@ export default function HomePage() {
         <div className="shell flex flex-col gap-4 py-7 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-muted sm:flex-row sm:items-center sm:justify-between">
           <span>{siteConfig.name}</span>
           <span>{siteConfig.market} · {siteConfig.currency}</span>
-          <span>© {new Date().getFullYear()} · Próximamente</span>
+          <span>© {new Date().getFullYear()} · Catálogo público</span>
         </div>
       </footer>
     </>
