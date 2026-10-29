@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AuthorizationError } from "@/lib/auth/authorization";
 import { requireActiveAdmin } from "@/lib/auth/server";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, noarchive: true },
+};
 
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   let actor: Awaited<ReturnType<typeof requireActiveAdmin>>["actor"];

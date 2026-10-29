@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 
 import { InvitationForm } from "@/app/auth/invite/invitation-form";
 
-export const metadata: Metadata = { title: "Aceptar invitación" };
+export const metadata: Metadata = {
+  title: "Aceptar invitación",
+  robots: { index: false, follow: false, noarchive: true },
+};
 
 export default function InvitationPage() {
   return (
