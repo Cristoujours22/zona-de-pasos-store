@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -19,6 +20,7 @@ export function LoginForm() {
       <label className="grid gap-2 text-sm font-bold">Correo<input className="rounded-lg border border-line bg-white px-4 py-3 font-normal" name="email" required type="email" autoComplete="email" /></label>
       <label className="grid gap-2 text-sm font-bold">Contraseña<input className="rounded-lg border border-line bg-white px-4 py-3 font-normal" name="password" required type="password" autoComplete="current-password" /></label>
       <button className="rounded-full bg-ink px-5 py-3 font-bold text-canvas" type="submit">Entrar</button>
+      <Link className="text-sm font-bold underline" href="/auth/forgot-password">¿Olvidaste tu contraseña?</Link>
       {message && <p className="text-sm text-red-700" role="alert">{message}</p>}
     </form>
   );
