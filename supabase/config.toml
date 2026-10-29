@@ -6,7 +6,10 @@ project_id = "zona-de-pasos-store"
 [auth]
 # Canonical production origin for authentication emails and approved redirects.
 site_url = "https://zona-de-pasos-store.vercel.app"
-additional_redirect_urls = ["https://zona-de-pasos-store.vercel.app/auth/invite"]
+additional_redirect_urls = [
+  "https://zona-de-pasos-store.vercel.app/auth/invite",
+  "https://zona-de-pasos-store.vercel.app/auth/callback",
+]
 # Setup and invitation flows provision administrators through server-side admin APIs.
 enable_signup = false
 
