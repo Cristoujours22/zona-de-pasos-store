@@ -5,7 +5,10 @@ import { makeBootstrapAdapter } from "@/lib/auth/adapters";
 import { isBootstrapAvailable } from "@/lib/auth/domain";
 import { isHighEntropySetupSecret } from "@/lib/validation/auth";
 
-export const metadata: Metadata = { title: "Configuración inicial" };
+export const metadata: Metadata = {
+  title: "Configuración inicial",
+  robots: { index: false, follow: false, noarchive: true },
+};
 export const dynamic = "force-dynamic";
 
 export default async function SetupPage() {
